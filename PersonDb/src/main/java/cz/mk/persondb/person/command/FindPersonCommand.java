@@ -3,6 +3,7 @@ package cz.mk.persondb.person.command;
 import cz.mk.persondb.commons.Constants;
 import cz.mk.persondb.core.command.Command;
 import cz.mk.persondb.core.command.input.InputProvider;
+import cz.mk.persondb.core.command.output.OutputProvider;
 import cz.mk.persondb.person.exception.InvalidPersonalIdException;
 import cz.mk.persondb.person.service.PersonService;
 import cz.mk.persondb.person.validate.PersonalIdValidator;
@@ -19,14 +20,16 @@ public class FindPersonCommand extends Command {
             Name: %s
             Surname: %s
             Age: %s
-            Personal id: %s%n
-            """;
+            Personal id: %s""";
     private final InputProvider inputProvider;
+
+    private final OutputProvider outputProvider;
 
     private final PersonService personService = PersonService.getInstance();
 
-    public FindPersonCommand(InputProvider inputProvider) {
+    public FindPersonCommand(InputProvider inputProvider, OutputProvider outputProvider) {
         this.inputProvider = inputProvider;
+        this.outputProvider = outputProvider;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class FindPersonCommand extends Command {
 
         int age = computeAge(person.personalId());
 
-        System.out.printf(PRINT_PERSON_INFO, person.name(), person.surname(), age, person.personalId());
+        outputProvider.writeOutput(PRINT_PERSON_INFO.formatted(person.name(), person.surname(), age, person.personalId()));
     }
 
     private int computeAge(String personalId) {

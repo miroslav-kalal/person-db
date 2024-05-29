@@ -1,26 +1,31 @@
 package cz.mk.persondb.core;
 
 import cz.mk.persondb.commons.Constants;
-import cz.mk.persondb.core.command.input.ConsoleInputProvider;
-import cz.mk.persondb.core.command.input.ConsoleInputReader;
-import cz.mk.persondb.core.exception.ApplicationException;
-import cz.mk.persondb.person.command.AddPersonCommand;
 import cz.mk.persondb.core.command.Command;
 import cz.mk.persondb.core.command.ContinueCommand;
 import cz.mk.persondb.core.command.UnknownCommand;
+import cz.mk.persondb.core.command.input.ConsoleInputProvider;
+import cz.mk.persondb.core.command.input.ConsoleInputReader;
+import cz.mk.persondb.core.command.output.ConsoleOutputProvider;
+import cz.mk.persondb.core.command.output.OutputProvider;
+import cz.mk.persondb.core.exception.ApplicationException;
+import cz.mk.persondb.person.command.AddPersonCommand;
 import cz.mk.persondb.person.command.DeletePersonCommand;
 import cz.mk.persondb.person.command.FindPersonCommand;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 public class CommandExecutor {
 
     public static final String COMMAND = "command";
 
+    private final OutputProvider outputProvider = new ConsoleOutputProvider();
+
     private final List<Command> commands = List.of(
             new AddPersonCommand(new ConsoleInputProvider(Constants.ADD, AddPersonCommand.argumentsFormat())),
-            new FindPersonCommand(new ConsoleInputProvider(Constants.FIND, FindPersonCommand.argumentsFormat())),
+            new FindPersonCommand(new ConsoleInputProvider(Constants.FIND, FindPersonCommand.argumentsFormat()), outputProvider),
             new DeletePersonCommand(new ConsoleInputProvider(Constants.DELETE, DeletePersonCommand.argumentsFormat()))
     );
 
@@ -35,7 +40,7 @@ public class CommandExecutor {
                 executeUserCommand(inputProvider);
             } while (!isUserTerminating());
         } catch (Exception e) {
-            System.out.println(Constants.ERROR_OCCURRED + e.getMessage());
+            outputProvider.writeOutput(Constants.ERROR_OCCURRED + e.getMessage());
         } finally {
             ConsoleInputReader.instance().close();
         }
@@ -45,7 +50,7 @@ public class CommandExecutor {
         try {
             findCommand(inputProvider.readInput(COMMAND, in -> true)).execute();
         } catch (ApplicationException e) {
-            System.out.println(Constants.ERROR_OCCURRED + e.getMessage());
+            outputProvider.writeOutput(Constants.ERROR_OCCURRED + e.getMessage());
         }
     }
 

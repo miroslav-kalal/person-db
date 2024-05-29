@@ -3,6 +3,8 @@ package cz.mk.persondb;
 
 import cz.mk.persondb.commons.Constants;
 import cz.mk.persondb.core.CommandExecutor;
+import cz.mk.persondb.core.command.output.ConsoleOutputProvider;
+import cz.mk.persondb.core.command.output.OutputProvider;
 
 import java.io.IOException;
 
@@ -10,15 +12,17 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println(Constants.PROGRAM_STARTED_PROMPT);
+        OutputProvider outputProvider = new ConsoleOutputProvider();
+
+        outputProvider.writeOutput(Constants.PROGRAM_STARTED_PROMPT);
         try {
             new CommandExecutor().run();
         } catch (IOException e) {
-            System.out.println(Constants.ERROR_OCCURRED + e.getMessage());
+            outputProvider.writeOutput(Constants.ERROR_OCCURRED + e.getMessage());
         } catch (Exception e) {
-            System.out.println(Constants.UNEXPECTED_ERROR + e.getMessage());
+            outputProvider.writeOutput(Constants.UNEXPECTED_ERROR + e.getMessage());
         } finally {
-            System.out.println(Constants.PROGRAM_TERMINATE_PROMPT);
+            outputProvider.writeOutput(Constants.PROGRAM_TERMINATE_PROMPT);
         }
     }
 
